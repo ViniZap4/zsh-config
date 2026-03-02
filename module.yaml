@@ -1,0 +1,25 @@
+name: zsh-config
+description: Zsh shell configuration with Oh My Zsh, fzf, zoxide, and aliases
+platforms:
+  - macos
+  - linux
+links:
+  - source: .zshrc
+    target: ~/.zshrc
+dependencies:
+  brew:
+    - fzf
+    - zoxide
+    - bat
+    - eza
+    - zsh-autosuggestions
+  apt:
+    - fzf
+    - zoxide
+    - bat
+    - eza
+  pacman:
+    - fzf
+    - zoxide
+    - bat
+    - eza
