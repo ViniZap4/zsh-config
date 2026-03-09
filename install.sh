@@ -39,8 +39,8 @@ echo "→ Detected OS: $OS, Package Manager: $PM"
 install_deps() {
   case "$PM" in
     brew)   brew install fzf zoxide bat eza zsh-autosuggestions 2>/dev/null || true ;;
-    apt)    sudo apt update && sudo apt install -y fzf zoxide bat eza 2>/dev/null || true ;;
-    pacman) sudo pacman -S --noconfirm fzf zoxide bat eza 2>/dev/null || true ;;
+    apt)    sudo apt-get update -qq && sudo apt-get install -y fzf zoxide bat eza 2>/dev/null || true ;;
+    pacman) sudo pacman -S --noconfirm --needed fzf zoxide bat eza zsh-autosuggestions 2>/dev/null || true ;;
     dnf)    sudo dnf install -y fzf zoxide bat eza 2>/dev/null || true ;;
     zypper) sudo zypper install -y fzf zoxide bat eza 2>/dev/null || true ;;
   esac
@@ -48,6 +48,19 @@ install_deps() {
 
 echo "→ Installing dependencies..."
 install_deps
+
+# ── Install zsh-autosuggestions (git clone fallback) ──────────────
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+ZAS_DIR="$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+
+if [[ "$PM" != "brew" && "$PM" != "pacman" ]]; then
+  if [[ ! -d "$ZAS_DIR" ]]; then
+    echo "→ Installing zsh-autosuggestions via git..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZAS_DIR" 2>/dev/null || true
+  else
+    echo "→ zsh-autosuggestions already installed"
+  fi
+fi
 
 # ── Create symlink ────────────────────────────────────────────────
 TARGET="$HOME/.zshrc"
