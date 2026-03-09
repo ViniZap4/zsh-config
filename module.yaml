@@ -8,28 +8,38 @@ links:
     target: ~/.zshrc
 dependencies:
   brew:
+    - zsh
+    - curl
     - fzf
     - zoxide
     - bat
     - eza
     - zsh-autosuggestions
   apt:
+    - zsh
+    - curl
     - fzf
     - zoxide
     - bat
     - eza
   pacman:
+    - zsh
+    - curl
     - fzf
     - zoxide
     - bat
     - eza
     - zsh-autosuggestions
   dnf:
+    - zsh
+    - curl
     - fzf
     - zoxide
     - bat
     - eza
   zypper:
+    - zsh
+    - curl
     - fzf
     - zoxide
     - bat

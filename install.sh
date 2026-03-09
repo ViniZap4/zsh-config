@@ -35,18 +35,50 @@ PM=$(detect_pm)
 
 echo "→ Detected OS: $OS, Package Manager: $PM"
 
-# ── Install dependencies ──────────────────────────────────────────
+# ── Install zsh ───────────────────────────────────────────────────
+install_zsh() {
+  if command -v zsh &>/dev/null; then
+    echo "→ zsh already installed"
+    return
+  fi
+
+  echo "→ Installing zsh..."
+  case "$PM" in
+    brew)   brew install zsh 2>/dev/null || true ;;
+    apt)    sudo apt-get update -qq && sudo apt-get install -y zsh curl 2>/dev/null || true ;;
+    pacman) sudo pacman -S --noconfirm --needed zsh curl 2>/dev/null || true ;;
+    dnf)    sudo dnf install -y zsh curl 2>/dev/null || true ;;
+    zypper) sudo zypper install -y zsh curl 2>/dev/null || true ;;
+  esac
+}
+
+install_zsh
+
+# ── Install Oh My Zsh ────────────────────────────────────────────
+install_ohmyzsh() {
+  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    echo "→ Oh My Zsh already installed"
+    return
+  fi
+
+  echo "→ Installing Oh My Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+}
+
+install_ohmyzsh
+
+# ── Install shell tools ──────────────────────────────────────────
 install_deps() {
+  echo "→ Installing shell tools (fzf, zoxide, bat, eza)..."
   case "$PM" in
     brew)   brew install fzf zoxide bat eza zsh-autosuggestions 2>/dev/null || true ;;
-    apt)    sudo apt-get update -qq && sudo apt-get install -y fzf zoxide bat eza 2>/dev/null || true ;;
+    apt)    sudo apt-get install -y fzf zoxide bat eza 2>/dev/null || true ;;
     pacman) sudo pacman -S --noconfirm --needed fzf zoxide bat eza zsh-autosuggestions 2>/dev/null || true ;;
     dnf)    sudo dnf install -y fzf zoxide bat eza 2>/dev/null || true ;;
     zypper) sudo zypper install -y fzf zoxide bat eza 2>/dev/null || true ;;
   esac
 }
 
-echo "→ Installing dependencies..."
 install_deps
 
 # ── Install zsh-autosuggestions (git clone fallback) ──────────────
@@ -75,3 +107,15 @@ fi
 
 ln -s "${SCRIPT_DIR}/.zshrc" "$TARGET"
 echo "✔ Linked .zshrc → $TARGET"
+
+# ── Set zsh as default shell ──────────────────────────────────────
+if [[ "$SHELL" != *"zsh"* ]]; then
+  ZSH_PATH="$(command -v zsh)"
+  if [[ -n "$ZSH_PATH" ]]; then
+    echo "→ Setting zsh as default shell..."
+    if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+      echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+    fi
+    chsh -s "$ZSH_PATH" 2>/dev/null || echo "→ Run manually: chsh -s $ZSH_PATH"
+  fi
+fi
